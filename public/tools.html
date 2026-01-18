@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>KaziCRA - Tools</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+        body {
+            font-family: 'Inter', sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .pb-safe {
+            padding-bottom: env(safe-area-inset-bottom);
+        }
+    </style>
+</head>
+
+<body class="bg-slate-50 text-slate-900 pb-24">
+
+    <!-- Header -->
+    <header class="bg-white p-4 sticky top-0 z-50 shadow-sm border-b border-slate-100">
+        <h1 class="text-xl font-bold text-slate-800 text-center">Clinical Tools</h1>
+    </header>
+
+    <main class="p-4 max-w-2xl mx-auto space-y-6">
+
+        <!-- Cockcroft-Gault Calculator -->
+        <section class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200">
+            <h2 class="text-lg font-bold text-slate-800 mb-4 flex items-center gap-2">
+                <svg class="w-5 h-5 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z">
+                    </path>
+                </svg>
+                Cockcroft-Gault (CrCl)
+            </h2>
+            <form id="crclForm" class="space-y-4">
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-500 uppercase mb-1">Age (yrs)</label>
+                        <input type="number" name="age"
+                            class="w-full rounded-lg border-slate-200 border p-2 focus:ring-2 focus:ring-indigo-500 outline-none"
+                            placeholder="45" required>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-500 uppercase mb-1">Weight (kg)</label>
+                        <input type="number" name="weight"
+                            class="w-full rounded-lg border-slate-200 border p-2 focus:ring-2 focus:ring-indigo-500 outline-none"
+                            placeholder="70" required>
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-500 uppercase mb-1">Serum Creatinine
+                        (mg/dL)</label>
+                    <input type="number" step="0.01" name="creatinine"
+                        class="w-full rounded-lg border-slate-200 border p-2 focus:ring-2 focus:ring-indigo-500 outline-none"
+                        placeholder="1.0" required>
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-500 uppercase mb-2">Sex</label>
+                    <div class="flex gap-4">
+                        <label class="flex items-center gap-2 cursor-pointer">
+                            <input type="radio" name="sex" value="male" class="text-indigo-600 focus:ring-indigo-500"
+                                checked>
+                            <span class="text-sm font-medium">Male</span>
+                        </label>
+                        <label class="flex items-center gap-2 cursor-pointer">
+                            <input type="radio" name="sex" value="female" class="text-indigo-600 focus:ring-indigo-500">
+                            <span class="text-sm font-medium">Female</span>
+                        </label>
+                    </div>
+                </div>
+                <button type="button" onclick="calculateCrCl()"
+                    class="w-full bg-slate-800 hover:bg-slate-900 text-white font-medium py-3 rounded-xl transition-colors">
+                    Calculate CrCl
+                </button>
+                <div id="crclResult"
+                    class="hidden animate-fade-in bg-indigo-50 p-4 rounded-xl border border-indigo-100 text-center">
+                    <span class="block text-xs font-bold text-indigo-400 uppercase">Estimated CrCl</span>
+                    <span class="text-3xl font-bold text-indigo-700" id="crclValue">--</span>
+                    <span class="text-sm text-indigo-600">mL/min</span>
+                </div>
+            </form>
+        </section>
+
+        <!-- CKD-EPI GFR Calculator -->
+        <section class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200">
+            <h2 class="text-lg font-bold text-slate-800 mb-4 flex items-center gap-2">
+                <svg class="w-5 h-5 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M19.428 15.428a2 2 0 00-1.022-.547l-2.384-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z">
+                    </path>
+                </svg>
+                CKD-EPI GFR
+            </h2>
+            <form id="gfrForm" class="space-y-4">
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-500 uppercase mb-1">Age</label>
+                        <input type="number" name="gfrAge"
+                            class="w-full rounded-lg border-slate-200 border p-2 focus:ring-2 focus:ring-indigo-500 outline-none"
+                            required>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-500 uppercase mb-1">Creatinine</label>
+                        <input type="number" step="0.01" name="gfrCreatinine"
+                            class="w-full rounded-lg border-slate-200 border p-2 focus:ring-2 focus:ring-indigo-500 outline-none"
+                            required>
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-500 uppercase mb-2">Sex</label>
+                    <div class="flex gap-4">
+                        <label class="flex items-center gap-2 cursor-pointer">
+                            <input type="radio" name="gfrSex" value="male"
+                                class="text-emerald-600 focus:ring-emerald-500" checked>
+                            <span class="text-sm font-medium">Male</span>
+                        </label>
+                        <label class="flex items-center gap-2 cursor-pointer">
+                            <input type="radio" name="gfrSex" value="female"
+                                class="text-emerald-600 focus:ring-emerald-500">
+                            <span class="text-sm font-medium">Female</span>
+                        </label>
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-500 uppercase mb-2">Race</label>
+                    <div class="flex gap-4">
+                        <label class="flex items-center gap-2 cursor-pointer">
+                            <input type="radio" name="gfrRace" value="other"
+                                class="text-emerald-600 focus:ring-emerald-500" checked>
+                            <span class="text-sm font-medium">Non-Black</span>
+                        </label>
+                        <label class="flex items-center gap-2 cursor-pointer">
+                            <input type="radio" name="gfrRace" value="black"
+                                class="text-emerald-600 focus:ring-emerald-500">
+                            <span class="text-sm font-medium">Black</span>
+                        </label>
+                    </div>
+                </div>
+                <button type="button" onclick="calculateGFR()"
+                    class="w-full bg-slate-800 hover:bg-slate-900 text-white font-medium py-3 rounded-xl transition-colors">
+                    Calculate GFR
+                </button>
+                <div id="gfrResult"
+                    class="hidden animate-fade-in bg-emerald-50 p-4 rounded-xl border border-emerald-100 text-center">
+                    <span class="block text-xs font-bold text-emerald-400 uppercase">Estimated GFR</span>
+                    <span class="text-3xl font-bold text-emerald-700" id="gfrValue">--</span>
+                    <span class="text-sm text-emerald-600">mL/min/1.73m²</span>
+                </div>
+            </form>
+        </section>
+
+    </main>
+
+    <!-- Bottom Nav -->
+    <nav class="fixed bottom-0 left-0 right-0 bg-white border-t border-slate-200 pb-safe z-50">
+        <div class="flex justify-around items-center h-16 max-w-2xl mx-auto">
+            <a href="/"
+                class="flex flex-col items-center justify-center w-full h-full text-slate-400 hover:text-slate-600">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                </svg>
+                <span class="text-[10px] font-medium mt-1">Wins</span>
+            </a>
+            <a href="/sites.html"
+                class="flex flex-col items-center justify-center w-full h-full text-slate-400 hover:text-slate-600">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4">
+                    </path>
+                </svg>
+                <span class="text-[10px] font-medium mt-1">Sites</span>
+            </a>
+            <a href="/tools" class="flex flex-col items-center justify-center w-full h-full text-indigo-600">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M19.428 15.428a2 2 0 00-1.022-.547l-2.384-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z">
+                    </path>
+                </svg>
+                <span class="text-[10px] font-medium mt-1">Tools</span>
+            </a>
+            <!-- Site Dir / Timecard -->
+            <a href="/timesheet.html"
+                class="flex flex-col items-center justify-center w-full h-full text-slate-400 hover:text-slate-600">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                </svg>
+                <span class="text-[10px] font-medium mt-1">Timecard</span>
+            </a>
+        </div>
+    </nav>
+
+    <script>
+        function calculateCrCl() {
+            const form = document.getElementById('crclForm');
+            const age = parseFloat(form.querySelector('[name="age"]').value);
+            const weight = parseFloat(form.querySelector('[name="weight"]').value);
+            const cr = parseFloat(form.querySelector('[name="creatinine"]').value);
+            const sex = form.querySelector('[name="sex"]:checked').value;
+
+            if (!age || !weight || !cr) {
+                alert('Please fill all fields');
+                return;
+            }
+
+            // Cockcroft-Gault
+            let crcl = ((140 - age) * weight) / (72 * cr);
+            if (sex === 'female') {
+                crcl *= 0.85;
+            }
+
+            document.getElementById('crclValue').textContent = crcl.toFixed(1);
+            document.getElementById('crclResult').classList.remove('hidden');
+        }
+
+        function calculateGFR() {
+            const form = document.getElementById('gfrForm');
+            const age = parseFloat(form.querySelector('[name="gfrAge"]').value);
+            const cr = parseFloat(form.querySelector('[name="gfrCreatinine"]').value);
+            const sex = form.querySelector('[name="gfrSex"]:checked').value;
+            const race = form.querySelector('[name="gfrRace"]:checked').value;
+
+            if (!age || !cr) {
+                alert('Please fill all fields');
+                return;
+            }
+
+            // CKD-EPI 2009
+            let a = 0;
+            let k = 0;
+            let genderFactor = 0;
+
+            if (sex === 'female') {
+                k = 0.7;
+                a = -0.329;
+                genderFactor = 1.018; // Female factor
+            } else {
+                k = 0.9;
+                a = -0.411;
+                genderFactor = 1;
+            }
+
+            // Wait, standard CKD-EPI 2009 formulas:
+            // GFR = 141 * min(Scr/k, 1)^a * max(Scr/k, 1)^-1.209 * 0.993^Age * 1.018 [if female] * 1.159 [if black]
+
+            let raceFactor = (race === 'black') ? 1.159 : 1;
+
+            const scrByK = cr / k;
+
+            const gfr = 141 * Math.pow(Math.min(scrByK, 1), a) * Math.pow(Math.max(scrByK, 1), -1.209) * Math.pow(0.993, age) * genderFactor * raceFactor;
+
+            document.getElementById('gfrValue').textContent = gfr.toFixed(1);
+            document.getElementById('gfrResult').classList.remove('hidden');
+        }
+    </script>
+
+</body>
+
+</html>
