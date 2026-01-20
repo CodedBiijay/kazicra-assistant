@@ -4,8 +4,25 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>KaziCRA - Tools</title>
+    <title>CRABuddy - Tools</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        kazi: {
+                            50: '#f0f9ff',
+                            100: '#e0f2fe',
+                            500: '#0ea5e9',
+                            600: '#0284c7',
+                            900: '#0c4a6e',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
 
@@ -23,138 +40,145 @@
 <body class="bg-slate-50 text-slate-900 pb-24">
 
     <!-- Header -->
-    <header class="bg-white p-4 sticky top-0 z-50 shadow-sm border-b border-slate-100">
-        <h1 class="text-xl font-bold text-slate-800 text-center">Clinical Tools</h1>
-    </header>
+    <!-- Navigation -->
+    <nav class="bg-white border-b border-slate-200 sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16">
+                <div class="flex">
+                    <div class="flex-shrink-0 flex items-center">
+                        <span class="text-2xl font-bold text-kazi-600">CRABuddy</span>
+                    </div>
+                    <div class="hidden sm:ml-6 sm:flex sm:space-x-8">
+                        <a href="/"
+                            class="border-transparent text-slate-500 hover:border-slate-300 hover:text-slate-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">
+                            Performance</a>
+                        <a href="/visits.html" class="border-transparent text-slate-500 hover:border-slate-300 hover:text-slate-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">Visit Prep
+                        </a>
+                        <a href="/timesheet.html"
+                            class="border-transparent text-slate-500 hover:border-slate-300 hover:text-slate-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">
+                            Timesheet
+                        </a>
+                        <a href="/sites.html"
+                            class="border-transparent text-slate-500 hover:border-slate-300 hover:text-slate-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">
+                            Sites
+                        </a>
+                        <a href="/tools"
+                            class="border-kazi-500 text-slate-900 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">
+                            Tools
+                        </a>
+                    </div>
+                </div>
+                <div class="flex items-center">
+                    <span id="syncStatus"
+                        class="text-xs font-mono text-slate-400 opacity-0 transition-opacity duration-500">Syncing...</span>
+                </div>
+            </div>
+        </div>
+    </nav>
 
     <main class="p-4 max-w-2xl mx-auto space-y-6">
+        <div class="px-0 sm:px-0 mb-4">
+            <h1 class="text-3xl font-bold text-slate-900">Clinical Tools</h1>
+            <p class="mt-1 text-sm text-slate-500">AI-driven calculators and study monitoring utilities.</p>
+        </div>
 
-        <!-- Cockcroft-Gault Calculator -->
-        <section class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200">
-            <h2 class="text-lg font-bold text-slate-800 mb-4 flex items-center gap-2">
-                <svg class="w-5 h-5 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <!-- AI Search -->
+        <section class="bg-gradient-to-r from-indigo-600 to-purple-600 p-6 rounded-2xl shadow-lg text-white">
+            <h2 class="text-lg font-bold mb-2 flex items-center gap-2">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                        d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z">
-                    </path>
+                        d="M13 10V3L4 14h7v7l9-11h-7z"></path>
                 </svg>
-                Cockcroft-Gault (CrCl)
+                Ask CRABuddy
             </h2>
-            <form id="crclForm" class="space-y-4">
-                <div class="grid grid-cols-2 gap-4">
-                    <div>
-                        <label class="block text-xs font-bold text-slate-500 uppercase mb-1">Age (yrs)</label>
-                        <input type="number" name="age"
-                            class="w-full rounded-lg border-slate-200 border p-2 focus:ring-2 focus:ring-indigo-500 outline-none"
-                            placeholder="45" required>
-                    </div>
-                    <div>
-                        <label class="block text-xs font-bold text-slate-500 uppercase mb-1">Weight (kg)</label>
-                        <input type="number" name="weight"
-                            class="w-full rounded-lg border-slate-200 border p-2 focus:ring-2 focus:ring-indigo-500 outline-none"
-                            placeholder="70" required>
-                    </div>
-                </div>
-                <div>
-                    <label class="block text-xs font-bold text-slate-500 uppercase mb-1">Serum Creatinine
-                        (mg/dL)</label>
-                    <input type="number" step="0.01" name="creatinine"
-                        class="w-full rounded-lg border-slate-200 border p-2 focus:ring-2 focus:ring-indigo-500 outline-none"
-                        placeholder="1.0" required>
-                </div>
-                <div>
-                    <label class="block text-xs font-bold text-slate-500 uppercase mb-2">Sex</label>
-                    <div class="flex gap-4">
-                        <label class="flex items-center gap-2 cursor-pointer">
-                            <input type="radio" name="sex" value="male" class="text-indigo-600 focus:ring-indigo-500"
-                                checked>
-                            <span class="text-sm font-medium">Male</span>
-                        </label>
-                        <label class="flex items-center gap-2 cursor-pointer">
-                            <input type="radio" name="sex" value="female" class="text-indigo-600 focus:ring-indigo-500">
-                            <span class="text-sm font-medium">Female</span>
-                        </label>
-                    </div>
-                </div>
-                <button type="button" onclick="calculateCrCl()"
-                    class="w-full bg-slate-800 hover:bg-slate-900 text-white font-medium py-3 rounded-xl transition-colors">
-                    Calculate CrCl
+            <p class="text-indigo-100 text-sm mb-4">Type a request like "BSA Calculator" or "Carboplatin dosing"</p>
+            <div class="relative">
+                <input type="text" id="toolSearch"
+                    class="w-full rounded-xl border-0 p-4 text-slate-900 focus:ring-2 focus:ring-white shadow-inner placeholder-slate-400"
+                    placeholder="What do you need to calculate?" onkeydown="if(event.key === 'Enter') searchTool()">
+                <button onclick="searchTool()"
+                    class="absolute right-2 top-2 bg-indigo-800 hover:bg-indigo-900 text-white p-2 rounded-lg transition-colors">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                    </svg>
                 </button>
-                <div id="crclResult"
-                    class="hidden animate-fade-in bg-indigo-50 p-4 rounded-xl border border-indigo-100 text-center">
-                    <span class="block text-xs font-bold text-indigo-400 uppercase">Estimated CrCl</span>
-                    <span class="text-3xl font-bold text-indigo-700" id="crclValue">--</span>
-                    <span class="text-sm text-indigo-600">mL/min</span>
-                </div>
-            </form>
+            </div>
         </section>
 
-        <!-- CKD-EPI GFR Calculator -->
+        <!-- Clinical Day Counter -->
         <section class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200">
             <h2 class="text-lg font-bold text-slate-800 mb-4 flex items-center gap-2">
                 <svg class="w-5 h-5 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                        d="M19.428 15.428a2 2 0 00-1.022-.547l-2.384-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z">
+                        d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z">
                     </path>
                 </svg>
-                CKD-EPI GFR
+                Clinical Day Counter
             </h2>
-            <form id="gfrForm" class="space-y-4">
+            <div class="space-y-4">
                 <div class="grid grid-cols-2 gap-4">
                     <div>
-                        <label class="block text-xs font-bold text-slate-500 uppercase mb-1">Age</label>
-                        <input type="number" name="gfrAge"
-                            class="w-full rounded-lg border-slate-200 border p-2 focus:ring-2 focus:ring-indigo-500 outline-none"
-                            required>
+                        <label class="block text-xs font-bold text-slate-500 uppercase mb-1">Baseline Date</label>
+                        <input type="date" id="baselineDate"
+                            class="w-full rounded border-slate-300 p-2 text-sm focus:ring-2 focus:ring-emerald-500 outline-none">
                     </div>
                     <div>
-                        <label class="block text-xs font-bold text-slate-500 uppercase mb-1">Creatinine</label>
-                        <input type="number" step="0.01" name="gfrCreatinine"
-                            class="w-full rounded-lg border-slate-200 border p-2 focus:ring-2 focus:ring-indigo-500 outline-none"
-                            required>
+                        <label class="block text-xs font-bold text-slate-500 uppercase mb-1">Target</label>
+                        <select id="targetType"
+                            class="w-full rounded border-slate-300 p-2 text-sm focus:ring-2 focus:ring-emerald-500 outline-none"
+                            onchange="toggleCycleInputs()">
+                            <option value="day">Visit Day (e.g., Day 28)</option>
+                            <option value="cycle">Cycle Logic (e.g., C2D1)</option>
+                        </select>
                     </div>
                 </div>
-                <div>
-                    <label class="block text-xs font-bold text-slate-500 uppercase mb-2">Sex</label>
-                    <div class="flex gap-4">
-                        <label class="flex items-center gap-2 cursor-pointer">
-                            <input type="radio" name="gfrSex" value="male"
-                                class="text-emerald-600 focus:ring-emerald-500" checked>
-                            <span class="text-sm font-medium">Male</span>
-                        </label>
-                        <label class="flex items-center gap-2 cursor-pointer">
-                            <input type="radio" name="gfrSex" value="female"
-                                class="text-emerald-600 focus:ring-emerald-500">
-                            <span class="text-sm font-medium">Female</span>
-                        </label>
+
+                <!-- Day Mode Inputs -->
+                <div id="dayInputs" class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-500 uppercase mb-1">Day #</label>
+                        <input type="number" id="targetDay" placeholder="28"
+                            class="w-full rounded border-slate-300 p-2 text-sm focus:ring-2 focus:ring-emerald-500 outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-500 uppercase mb-1">Window (+/- days)</label>
+                        <input type="number" id="windowDays" placeholder="3"
+                            class="w-full rounded border-slate-300 p-2 text-sm focus:ring-2 focus:ring-emerald-500 outline-none">
                     </div>
                 </div>
-                <div>
-                    <label class="block text-xs font-bold text-slate-500 uppercase mb-2">Race</label>
-                    <div class="flex gap-4">
-                        <label class="flex items-center gap-2 cursor-pointer">
-                            <input type="radio" name="gfrRace" value="other"
-                                class="text-emerald-600 focus:ring-emerald-500" checked>
-                            <span class="text-sm font-medium">Non-Black</span>
-                        </label>
-                        <label class="flex items-center gap-2 cursor-pointer">
-                            <input type="radio" name="gfrRace" value="black"
-                                class="text-emerald-600 focus:ring-emerald-500">
-                            <span class="text-sm font-medium">Black</span>
-                        </label>
+
+                <!-- Cycle Mode Inputs (Hidden by default) -->
+                <div id="cycleInputs" class="hidden grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-500 uppercase mb-1">Cycle Length (Days)</label>
+                        <input type="number" id="cycleLength" placeholder="21"
+                            class="w-full rounded border-slate-300 p-2 text-sm focus:ring-2 focus:ring-emerald-500 outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-500 uppercase mb-1">Target Cycle #</label>
+                        <input type="number" id="targetCycle" placeholder="2"
+                            class="w-full rounded border-slate-300 p-2 text-sm focus:ring-2 focus:ring-emerald-500 outline-none">
                     </div>
                 </div>
-                <button type="button" onclick="calculateGFR()"
+
+                <button onclick="calculateDates()"
                     class="w-full bg-slate-800 hover:bg-slate-900 text-white font-medium py-3 rounded-xl transition-colors">
-                    Calculate GFR
+                    Calculate Window
                 </button>
-                <div id="gfrResult"
-                    class="hidden animate-fade-in bg-emerald-50 p-4 rounded-xl border border-emerald-100 text-center">
-                    <span class="block text-xs font-bold text-emerald-400 uppercase">Estimated GFR</span>
-                    <span class="text-3xl font-bold text-emerald-700" id="gfrValue">--</span>
-                    <span class="text-sm text-emerald-600">mL/min/1.73m²</span>
+
+                <div id="dateResult" class="hidden bg-emerald-50 p-4 rounded-xl border border-emerald-100 text-center">
+                    <span class="block text-xs font-bold text-emerald-400 uppercase">Target Window</span>
+                    <span class="text-lg font-bold text-emerald-800" id="dateRangeValue">--</span>
+                    <p class="text-xs text-emerald-600 mt-1" id="exactDateValue"></p>
                 </div>
-            </form>
+            </div>
         </section>
+
+        <!-- Dynamic Tools List -->
+        <div id="myToolsList" class="space-y-6">
+            <!-- Populated by JS -->
+        </div>
 
     </main>
 
@@ -186,7 +210,6 @@
                 </svg>
                 <span class="text-[10px] font-medium mt-1">Tools</span>
             </a>
-            <!-- Site Dir / Timecard -->
             <a href="/timesheet.html"
                 class="flex flex-col items-center justify-center w-full h-full text-slate-400 hover:text-slate-600">
                 <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -199,67 +222,151 @@
     </nav>
 
     <script>
-        function calculateCrCl() {
-            const form = document.getElementById('crclForm');
-            const age = parseFloat(form.querySelector('[name="age"]').value);
-            const weight = parseFloat(form.querySelector('[name="weight"]').value);
-            const cr = parseFloat(form.querySelector('[name="creatinine"]').value);
-            const sex = form.querySelector('[name="sex"]:checked').value;
-
-            if (!age || !weight || !cr) {
-                alert('Please fill all fields');
-                return;
-            }
-
-            // Cockcroft-Gault
-            let crcl = ((140 - age) * weight) / (72 * cr);
-            if (sex === 'female') {
-                crcl *= 0.85;
-            }
-
-            document.getElementById('crclValue').textContent = crcl.toFixed(1);
-            document.getElementById('crclResult').classList.remove('hidden');
-        }
-
-        function calculateGFR() {
-            const form = document.getElementById('gfrForm');
-            const age = parseFloat(form.querySelector('[name="gfrAge"]').value);
-            const cr = parseFloat(form.querySelector('[name="gfrCreatinine"]').value);
-            const sex = form.querySelector('[name="gfrSex"]:checked').value;
-            const race = form.querySelector('[name="gfrRace"]:checked').value;
-
-            if (!age || !cr) {
-                alert('Please fill all fields');
-                return;
-            }
-
-            // CKD-EPI 2009
-            let a = 0;
-            let k = 0;
-            let genderFactor = 0;
-
-            if (sex === 'female') {
-                k = 0.7;
-                a = -0.329;
-                genderFactor = 1.018; // Female factor
+        // --- Day Counter Logic ---
+        function toggleCycleInputs() {
+            const type = document.getElementById('targetType').value;
+            if (type === 'cycle') {
+                document.getElementById('dayInputs').classList.add('hidden');
+                document.getElementById('cycleInputs').classList.remove('hidden');
             } else {
-                k = 0.9;
-                a = -0.411;
-                genderFactor = 1;
+                document.getElementById('dayInputs').classList.remove('hidden');
+                document.getElementById('cycleInputs').classList.add('hidden');
+            }
+        }
+
+        function calculateDates() {
+            const baseStr = document.getElementById('baselineDate').value;
+            if (!baseStr) return alert("Select baseline date");
+
+            const base = new Date(baseStr);
+            const type = document.getElementById('targetType').value;
+            let targetDate = new Date(base);
+
+            if (type === 'day') {
+                const days = parseInt(document.getElementById('targetDay').value) || 0;
+                // Visit Day 1 is usually baseline, so Day 28 is baseline + 27? 
+                // Let's assume standard monitoring: Day X means Baseline + X days usually, or Baseline + (X-1).
+                // Protocol specific. We'll use simple addition: Baseline + Days.
+                targetDate.setDate(base.getDate() + days);
+            } else {
+                const cycleLen = parseInt(document.getElementById('cycleLength').value) || 21;
+                const cycleNum = parseInt(document.getElementById('targetCycle').value) || 1;
+                // Cycle 1 Day 1 = Baseline. Cycle 2 Day 1 = Baseline + CycleLen.
+                const daysToAdd = (cycleNum - 1) * cycleLen;
+                targetDate.setDate(base.getDate() + daysToAdd);
             }
 
-            // Wait, standard CKD-EPI 2009 formulas:
-            // GFR = 141 * min(Scr/k, 1)^a * max(Scr/k, 1)^-1.209 * 0.993^Age * 1.018 [if female] * 1.159 [if black]
+            const win = parseInt(document.getElementById('windowDays').value) || 0;
+            const start = new Date(targetDate); start.setDate(targetDate.getDate() - win);
+            const end = new Date(targetDate); end.setDate(targetDate.getDate() + win);
 
-            let raceFactor = (race === 'black') ? 1.159 : 1;
+            const fmt = d => d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
 
-            const scrByK = cr / k;
-
-            const gfr = 141 * Math.pow(Math.min(scrByK, 1), a) * Math.pow(Math.max(scrByK, 1), -1.209) * Math.pow(0.993, age) * genderFactor * raceFactor;
-
-            document.getElementById('gfrValue').textContent = gfr.toFixed(1);
-            document.getElementById('gfrResult').classList.remove('hidden');
+            document.getElementById('dateRangeValue').textContent = `${fmt(start)} – ${fmt(end)}`;
+            document.getElementById('exactDateValue').textContent = `Target: ${fmt(targetDate)}`;
+            document.getElementById('dateResult').classList.remove('hidden');
         }
+
+        // --- Dynamic Tools Logic ---
+        async function loadMyTools() {
+            const container = document.getElementById('myToolsList');
+            try {
+                const res = await fetch('/api/tools/my-tools');
+                const tools = await res.json();
+
+                container.innerHTML = tools.map(renderTool).join('');
+            } catch (e) { console.error(e); }
+        }
+
+        async function searchTool() {
+            const query = document.getElementById('toolSearch').value;
+            if (!query) return;
+
+            try {
+                const res = await fetch('/api/tools/search', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ query })
+                });
+
+                if (res.ok) {
+                    const tool = await res.json();
+                    // Reload list to show newly added tool
+                    document.getElementById('toolSearch').value = '';
+                    loadMyTools();
+                } else {
+                    alert('No calculator found for that request. Try "BSA" or "BMI".');
+                }
+            } catch (e) { console.error(e); }
+        }
+
+        function renderTool(tool) {
+            // Dynamic Form Generation
+            const inputsHtml = tool.config.inputs.map(inp => `
+                <div>
+                    <label class="block text-xs font-bold text-slate-500 uppercase mb-1">${inp.label}</label>
+                    <input type="${inp.type}" data-name="${inp.name}" 
+                        class="tool-input w-full rounded-lg border-slate-200 border p-2 focus:ring-2 focus:ring-blue-500 outline-none" required>
+                </div>
+            `).join('');
+
+            return `
+                <section class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200" id="tool-${tool.id}">
+                    <h2 class="text-lg font-bold text-slate-800 mb-4 flex items-center gap-2">
+                        <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path></svg>
+                        ${tool.name}
+                    </h2>
+                    <form onsubmit="runCalculation(event, '${tool.id}')" class="space-y-4">
+                        <div class="grid grid-cols-2 gap-4">${inputsHtml}</div>
+                        <button type="submit" class="w-full bg-slate-800 hover:bg-slate-900 text-white font-medium py-3 rounded-xl transition-colors">
+                            Calculate
+                        </button>
+                        <div class="result-box hidden animate-fade-in bg-blue-50 p-4 rounded-xl border border-blue-100 text-center mt-4">
+                            <span class="block text-xs font-bold text-blue-400 uppercase">Result</span>
+                            <span class="result-val text-3xl font-bold text-blue-700">--</span>
+                            <span class="text-sm text-blue-600">${tool.config.unit}</span>
+                            <p class="text-[10px] text-slate-400 mt-2"> Disclaimer: Verification required against local lab/protocol standards.</p>
+                        </div>
+                    </form>
+                    <!-- Hidden Config for JS to read -->
+                    <script type="application/json" id="config-${tool.id}">${JSON.stringify(tool.config)}<\/script>
+                </section>
+            `;
+        }
+
+        function runCalculation(e, toolId) {
+            e.preventDefault();
+            const config = JSON.parse(document.getElementById(`config-${toolId}`).textContent);
+            const form = e.target;
+            const inputs = form.querySelectorAll('.tool-input');
+
+            // Build context for eval (safe-ish context)
+            const ctx = {};
+            inputs.forEach(inp => {
+                ctx[inp.dataset.name] = parseFloat(inp.value);
+            });
+
+            try {
+                // Execute formula
+                // Create a function from strings (controlled inputs from server)
+                const keys = Object.keys(ctx);
+                const values = Object.values(ctx);
+                const func = new Function(...keys, `return ${config.formula}`);
+                const result = func(...values);
+
+                const resBox = form.querySelector('.result-box');
+                const resVal = form.querySelector('.result-val');
+
+                resVal.textContent = isNaN(result) ? 'Error' : result.toFixed(2);
+                resBox.classList.remove('hidden');
+
+            } catch (err) {
+                console.error(err);
+                alert("Calculation error");
+            }
+        }
+
+        loadMyTools();
     </script>
 
 </body>

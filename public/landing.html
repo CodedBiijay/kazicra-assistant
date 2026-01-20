@@ -1,0 +1,909 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CRABuddy | The OS for Elite CRAs</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Montserrat:wght@500;600;700;800&family=Space+Grotesk:wght@500;700&display=swap"
+        rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        ebony: '#1A1A1B',
+                        bone: '#F9F6EE',
+                        picasso: '#D0F0C0',
+                        coral: '#FF4D4D',
+                        void: '#050505',
+                        iris: '#5D5FEF',
+                        rose: '#F092AD',
+                        slate: {
+                            850: '#151b28',
+                            900: '#0f172a',
+                            950: '#020617',
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        heading: ['Montserrat', 'sans-serif'],
+                        display: ['Space Grotesk', 'sans-serif'],
+                    },
+                    animation: {
+                        'pulse-slow': 'pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                        'float': 'float 6s ease-in-out infinite',
+                        'glow': 'glow 2s ease-in-out infinite alternate',
+                        'orbit-cw': 'orbit-cw 20s linear infinite',
+                        'orbit-ccw': 'orbit-ccw 25s linear infinite',
+                        'orbit-inner': 'orbit-cw 15s linear infinite',
+                        'pulse-glow': 'pulse-glow 3s ease-in-out infinite',
+                    },
+                    keyframes: {
+                        float: {
+                            '0%, 100%': { transform: 'translateY(0)' },
+                            '50%': { transform: 'translateY(-20px)' },
+                        },
+                        glow: {
+                            'from': { boxShadow: '0 0 10px -5px #D0F0C0' },
+                            'to': { boxShadow: '0 0 25px 5px #D0F0C0' },
+                        },
+                        'orbit-cw': {
+                            '0%': { transform: 'rotate(0deg)' },
+                            '100%': { transform: 'rotate(360deg)' },
+                        },
+                        'orbit-ccw': {
+                            '0%': { transform: 'rotate(360deg)' },
+                            '100%': { transform: 'rotate(0deg)' },
+                        },
+                        'pulse-glow': {
+                            '0%, 100%': { opacity: '0.6', transform: 'scale(1)' },
+                            '50%': { opacity: '1', transform: 'scale(1.05)' },
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            background-color: #1A1A1B;
+            color: #F9F6EE;
+        }
+
+        .glass-panel {
+            background: rgba(26, 26, 27, 0.7);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .glass-orb {
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+        }
+
+        .glass-orb:hover {
+            background: rgba(255, 255, 255, 0.08);
+            border-color: rgba(208, 240, 192, 0.3);
+            box-shadow: 0 0 20px rgba(208, 240, 192, 0.1);
+            transform: scale(1.05);
+        }
+
+        .orbit-container {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+
+        .ring-line {
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 50%;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+
+        .orbit-wrapper-1 {
+            animation: orbit-cw 40s linear infinite;
+            width: 100%;
+            height: 100%;
+            position: absolute;
+        }
+
+        .orbit-wrapper-2 {
+            animation: orbit-ccw 50s linear infinite;
+            width: 100%;
+            height: 100%;
+            position: absolute;
+        }
+
+        .orbit-wrapper-3 {
+            animation: orbit-cw 30s linear infinite;
+            width: 100%;
+            height: 100%;
+            position: absolute;
+        }
+
+        .planet-icon {
+            animation: orbit-ccw 40s linear infinite;
+        }
+
+        .orbit-wrapper-2 .planet-icon {
+            animation: orbit-cw 50s linear infinite;
+        }
+
+        .orbit-wrapper-3 .planet-icon {
+            animation: orbit-ccw 30s linear infinite;
+        }
+
+        .plate-lock {
+            border: 1px solid #D0F0C0;
+            box-shadow: 0 0 15px -5px rgba(208, 240, 192, 0.2);
+        }
+
+        .signal-reveal {
+            color: #FF4D4D;
+            text-shadow: 0 0 8px rgba(255, 77, 77, 0.4);
+        }
+
+        .grid-bg {
+            background-image:
+                linear-gradient(rgba(249, 246, 238, 0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(249, 246, 238, 0.03) 1px, transparent 1px);
+            background-size: 40px 40px;
+        }
+    </style>
+</head>
+
+<body class="antialiased font-sans overflow-x-hidden selection:bg-picasso selection:text-ebony">
+
+    <!-- Ambient Background Effects -->
+    <div class="fixed inset-0 z-0 pointer-events-none overflow-hidden">
+        <div class="absolute top-0 right-0 w-[50rem] h-[50rem] bg-iris/10 rounded-full blur-[150px] animate-pulse-glow">
+        </div>
+        <div class="absolute bottom-0 left-0 w-[40rem] h-[40rem] bg-picasso/5 rounded-full blur-[120px]"></div>
+        <div class="absolute inset-0 grid-bg z-0 opacity-20"></div>
+    </div>
+
+    <!-- Navigation -->
+    <nav class="fixed w-full z-50 glass-panel border-b border-white/5">
+        <div class="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
+            <div class="flex items-center gap-3 group cursor-pointer">
+                <div
+                    class="w-10 h-10 bg-ebony border border-picasso rounded flex items-center justify-center relative overflow-hidden group-hover:shadow-[0_0_15px_rgba(208,240,192,0.4)] transition-all duration-300">
+                    <div class="absolute inset-0 bg-picasso/10 animate-pulse"></div>
+                    <svg class="w-5 h-5 text-picasso relative z-10" fill="none" stroke="currentColor"
+                        viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                </div>
+                <span class="text-2xl font-heading font-bold tracking-tight text-bone">CRA<span
+                        class="text-picasso">Buddy</span></span>
+            </div>
+
+            <div class="hidden md:flex gap-8 items-center">
+                <a href="#features"
+                    class="text-sm font-medium text-bone/70 hover:text-picasso transition-colors tracking-wide uppercase">Features</a>
+                <a href="#story"
+                    class="text-sm font-medium text-bone/70 hover:text-picasso transition-colors tracking-wide uppercase">Story</a>
+                <button onclick="openModal()"
+                    class="text-sm font-medium text-bone hover:text-picasso transition-colors tracking-wide uppercase border-r border-white/10 pr-6 mr-2">Login</button>
+                <button onclick="openModal()"
+                    class="px-6 py-2.5 bg-picasso hover:bg-white text-ebony font-heading font-bold text-sm tracking-wide rounded-sm transition-all shadow-[0_0_20px_rgba(208,240,192,0.3)] hover:shadow-[0_0_30px_rgba(208,240,192,0.5)]">
+                    JOIN THE COLONY
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <main class="relative z-10 pt-32 pb-20 lg:pt-48">
+        <div class="max-w-7xl mx-auto px-6 text-center lg:text-left grid lg:grid-cols-2 gap-16 items-center">
+
+            <!-- Left: Copy -->
+            <div class="space-y-8 animate-slide-up">
+                <div class="inline-flex items-center gap-3 px-4 py-2 border border-coral/30 bg-coral/5 rounded-full">
+                    <span class="w-2 h-2 rounded-full bg-coral animate-ping"></span>
+                    <span class="text-xs font-mono text-coral font-bold tracking-widest uppercase">Signal Revealed: v2.0
+                        Live</span>
+                </div>
+
+                <h1 class="text-5xl lg:text-7xl font-heading font-extrabold leading-[0.9] tracking-tight">
+                    <span class="block text-bone">Stop Chasing</span>
+                    <span
+                        class="block text-transparent bg-clip-text bg-gradient-to-r from-picasso to-emerald-400">Trackers.</span>
+                    <span class="block text-bone">Start Monitoring.</span>
+                </h1>
+
+                <p class="text-lg text-bone/60 leading-relaxed font-light max-w-xl mx-auto lg:mx-0">
+                    The all-in-one digital co-pilot for the modern CRA. Built to eliminate the mental load by automating
+                    site prep, gap analysis, and query tracking.
+                </p>
+
+                <div class="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start pt-4">
+                    <button onclick="openModal()"
+                        class="group relative px-8 py-4 bg-emerald-600 hover:bg-emerald-500 overflow-hidden rounded-sm plate-lock border-none transition-transform hover:-translate-y-1 shadow-[0_0_20px_rgba(16,185,129,0.3)]">
+                        <span
+                            class="relative font-heading font-bold text-white tracking-widest flex items-center gap-2">
+                            TRY FOR FREE <svg class="w-4 h-4 transition-transform group-hover:translate-x-1" fill="none"
+                                stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M17 8l4 4m0 0l-4 4m4-4H3"></path>
+                            </svg>
+                        </span>
+                    </button>
+                    <a href="#demo"
+                        class="px-8 py-4 border border-white/10 text-bone/70 font-heading font-bold tracking-widest hover:bg-white/5 hover:text-white transition-all rounded-sm">
+                        WATCH DEMO
+                    </a>
+                </div>
+            </div>
+
+            <!-- Right: The Orbit Visualization -->
+            <div class="relative h-[600px] w-full flex items-center justify-center perspective-1000">
+
+                <!-- Central Core: Calm -->
+                <div
+                    class="w-32 h-32 rounded-full glass-orb flex items-center justify-center relative z-20 shadow-[0_0_60px_rgba(208,240,192,0.2)] animate-float">
+                    <div class="absolute inset-0 bg-picasso/20 blur-xl rounded-full"></div>
+                    <svg class="w-16 h-16 text-picasso relative z-10" fill="none" stroke="currentColor"
+                        viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                            d="M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m18-6h-2m2 6h-2M7 19h10a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v10a2 2 0 002 2zM9 9h6v6H9V9z">
+                        </path>
+                    </svg>
+                </div>
+
+                <!-- Ring 1: Immediate Tools (Checklists, Reports) -->
+                <div class="ring-line w-[280px] h-[280px] opacity-40"></div>
+                <div class="orbit-wrapper-1 w-[280px] h-[280px]">
+                    <!-- Item 1 -->
+                    <div class="block absolute top-0 left-1/2 -ml-6 -mt-6">
+                        <div
+                            class="w-12 h-12 rounded-xl glass-orb flex items-center justify-center planet-icon cursor-pointer group">
+                            <span
+                                class="absolute -top-8 opacity-0 group-hover:opacity-100 transition-opacity text-[10px] font-mono text-picasso whitespace-nowrap bg-ebony px-2 py-1 border border-picasso/20 rounded">AUTO-REPORT</span>
+                            <svg class="w-5 h-5 text-picasso" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z">
+                                </path>
+                            </svg>
+                        </div>
+                    </div>
+                    <!-- Item 2 -->
+                    <div class="block absolute bottom-0 left-1/2 -ml-6 -mb-6">
+                        <div
+                            class="w-12 h-12 rounded-xl glass-orb flex items-center justify-center planet-icon cursor-pointer group">
+                            <span
+                                class="absolute -bottom-8 opacity-0 group-hover:opacity-100 transition-opacity text-[10px] font-mono text-picasso whitespace-nowrap bg-ebony px-2 py-1 border border-picasso/20 rounded">CHECKLISTS</span>
+                            <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4">
+                                </path>
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Ring 2: The Chaos (Emails, Excel, Red Alerts) -->
+                <div class="ring-line w-[450px] h-[450px] opacity-20"></div>
+                <div class="orbit-wrapper-2 w-[450px] h-[450px]">
+                    <!-- Chaos Item 1: Excel -->
+                    <div class="block absolute top-1/4 left-0 -ml-5">
+                        <div
+                            class="w-14 h-14 rounded-2xl glass-orb border-rosy-500/30 flex items-center justify-center planet-icon backdrop-blur-md">
+                            <div
+                                class="absolute -right-2 -top-2 w-4 h-4 bg-coral rounded-full flex items-center justify-center text-[10px] font-bold">
+                                3</div>
+                            <svg class="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z">
+                                </path>
+                            </svg>
+                        </div>
+                    </div>
+                    <!-- Chaos Item 2: Email -->
+                    <div class="block absolute bottom-1/4 right-0 -mr-5">
+                        <div class="w-16 h-16 rounded-2xl glass-orb flex items-center justify-center planet-icon">
+                            <div
+                                class="absolute -right-1 -top-1 w-5 h-5 bg-coral rounded-full flex items-center justify-center text-[10px] font-bold">
+                                52</div>
+                            <svg class="w-7 h-7 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z">
+                                </path>
+                            </svg>
+                        </div>
+                    </div>
+                    <!-- Chaos Item 3: Alert -->
+                    <div class="block absolute top-0 left-1/2 -mt-6">
+                        <div
+                            class="w-10 h-10 rounded-lg glass-orb border-coral/50 flex items-center justify-center planet-icon">
+                            <svg class="w-5 h-5 text-coral" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z">
+                                </path>
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Ring 3: Distant Systems (Flight, Calendar) -->
+                <div class="ring-line w-[600px] h-[600px] opacity-10 dashed"></div>
+                <div class="orbit-wrapper-3 w-[600px] h-[600px]">
+                    <div class="block absolute bottom-1/3 left-0">
+                        <div
+                            class="w-10 h-10 rounded-full glass-orb flex items-center justify-center planet-icon opacity-60">
+                            <svg class="w-4 h-4 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path>
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </main>
+
+    <!-- Social Proof Bar -->
+    <section class="bg-ebony py-12 overflow-hidden border-y border-white/5 relative z-10">
+        <div class="max-w-7xl mx-auto px-6">
+            <p class="text-center text-bone/40 font-bold uppercase tracking-[0.3em] text-[10px] mb-8">Saving time for
+                CRAs at these organizations</p>
+            <div class="flex flex-wrap justify-center items-center gap-12 opacity-30 grayscale invert">
+                <span class="text-2xl font-heading font-black italic tracking-tighter text-white">PPD</span>
+                <span class="text-2xl font-heading font-black italic tracking-tighter text-white">IQVIA</span>
+                <span class="text-2xl font-heading font-black italic tracking-tighter text-white">Labcorp</span>
+                <span class="text-2xl font-heading font-black italic tracking-tighter text-white">Syneos</span>
+                <span class="text-2xl font-heading font-black italic tracking-tighter text-white">Parexel</span>
+            </div>
+        </div>
+    </section>
+
+    <!-- The Problem / Mental Load Section -->
+    <section class="py-24 relative z-10 border-b border-white/5 bg-ebony/50">
+        <div class="max-w-7xl mx-auto px-6">
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+                <div>
+                    <h2 class="text-3xl lg:text-4xl font-heading font-bold text-bone mb-6">
+                        The "CRA Mental Load" is Real.
+                    </h2>
+                    <p class="text-bone/60 text-lg leading-relaxed mb-8">
+                        Most CRAs spend the first 2 hours on-site just trying to find what's missing. Use CRABuddy to do
+                        that heavy lifting before you even pack your suitcase.
+                    </p>
+                    <div class="space-y-4">
+                        <div class="flex items-center gap-4 p-4 bg-white/5 rounded border border-white/10">
+                            <span class="text-coral">⚠️</span>
+                            <span class="text-bone/80 font-mono text-sm">"Did I check the IP inventory at Site
+                                101?"</span>
+                        </div>
+                        <div class="flex items-center gap-4 p-4 bg-white/5 rounded border border-white/10">
+                            <span class="text-coral">⚠️</span>
+                            <span class="text-bone/80 font-mono text-sm">"Where is that DOAl og spreadsheet?"</span>
+                        </div>
+                        <div class="flex items-center gap-4 p-4 bg-white/5 rounded border border-white/10">
+                            <span class="text-coral">⚠️</span>
+                            <span class="text-bone/80 font-mono text-sm">"Why is RAVE showing 42 unaddressed
+                                queries?"</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="md:text-right">
+                    <h2 class="text-5xl lg:text-7xl font-heading font-extrabold leading-[0.9] tracking-tight uppercase">
+                        <span class="block text-bone/20">Focus on</span>
+                        <span class="block text-white">Metrics,</span>
+                        <span class="block text-bone/20">Not Paperwork.</span>
+                    </h2>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Bento Grid Features Using ExoCore -->
+    <section id="features" class="py-32 relative z-10">
+        <div class="max-w-7xl mx-auto px-6">
+            <h2 class="text-3xl font-heading font-bold text-bone mb-16 border-l-4 border-picasso pl-6">
+                SYSTEM MODULES
+            </h2>
+
+            <!-- Changed Grid to fit 5 items: Main (2 cols) + 4 others -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+
+                <!-- Feature 1: The Evidence Archive (Span 2) -->
+                <div
+                    class="md:col-span-2 glass-panel rounded-xl p-10 flex flex-col justify-between group hover:border-picasso/30 transition-colors">
+                    <div>
+                        <div class="w-14 h-14 bg-picasso/10 rounded-lg flex items-center justify-center mb-6">
+                            <svg class="w-7 h-7 text-picasso" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M4 5a1 1 0 011-1h14a1 1 0 011 1v2a1 1 0 01-1 1H5a1 1 0 01-1-1V5zM4 13a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H5a1 1 0 01-1-1v-6zM16 13a1 1 0 011-1h2a1 1 0 011 1v6a1 1 0 01-1 1h-2a1 1 0 01-1-1v-6z">
+                                </path>
+                            </svg>
+                        </div>
+                        <h3 class="text-3xl font-heading font-bold text-white mb-4">Unified Dashboard.</h3>
+                        <p class="text-bone/60 text-lg leading-relaxed max-w-xl">
+                            Stop hunting through 15 tabs. Everything for your visit is on one screen. Access your
+                            detailed checklist, ISF gaps, and site logistics from a single, secure command center.
+                        </p>
+                    </div>
+                    <div class="aspect-video bg-ebony rounded-lg border border-white/5 mt-8 overflow-hidden relative">
+                        <!-- Visual placeholder -->
+                        <div class="absolute inset-0 bg-gradient-to-t from-ebony via-ebony/50 to-transparent z-10">
+                        </div>
+                        <div
+                            class="absolute inset-0 opacity-20 bg-[url('https://ui-avatars.com/api/?name=Ev&length=2&background=random')]">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Feature 2: Site Intelligence -->
+                <div
+                    class="glass-panel rounded-xl p-8 hover:bg-white/5 transition-colors group flex flex-col justify-start">
+                    <div class="w-12 h-12 bg-coral/10 rounded flex items-center justify-center mb-6">
+                        <svg class="w-6 h-6 text-coral" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M13 10V3L4 14h7v7l9-11h-7z">
+                            </path>
+                        </svg>
+                    </div>
+                    <h3 class="text-xl font-heading font-bold text-white mb-3 group-hover:text-coral transition-colors">
+                        Instant Gap Analysis</h3>
+                    <p class="text-sm text-bone/60 leading-relaxed">
+                        One-click cross-referencing between RAVE, MonTe, and Site Trackers. Identify exactly what's
+                        missing before you arrive.
+                    </p>
+                </div>
+
+                <!-- Feature 3: Review Narrative -->
+                <div class="glass-panel rounded-xl p-8 hover:bg-white/5 transition-colors group">
+                    <div class="w-12 h-12 bg-picasso/10 rounded flex items-center justify-center mb-6">
+                        <svg class="w-6 h-6 text-picasso" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z">
+                            </path>
+                        </svg>
+                    </div>
+                    <h3 class="text-xl font-heading font-bold text-white mb-3">AI Pre-Flight Scan</h3>
+                    <p class="text-sm text-bone/60 leading-relaxed">
+                        Automatic alerts for missing DOA signatures or expiring certificates before you step on the
+                        plane. "Did I forget that?" anxiety is a thing of the past.
+                    </p>
+                </div>
+
+                <!-- Feature 4: Smart Timesheets & Expenses -->
+                <div class="glass-panel rounded-xl p-8 hover:bg-white/5 transition-colors group">
+                    <div class="w-12 h-12 bg-emerald-500/10 rounded flex items-center justify-center mb-6">
+                        <svg class="w-6 h-6 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z">
+                            </path>
+                        </svg>
+                    </div>
+                    <h3 class="text-xl font-heading font-bold text-white mb-3">Smart Timesheets</h3>
+                    <p class="text-sm text-bone/60 leading-relaxed">
+                        Automated hours logging and receipt capture. We match every coffee and flight to the correct
+                        protocol code instantly.
+                    </p>
+                </div>
+
+                <!-- Feature 5: Expense Streamlining -->
+                <div class="glass-panel rounded-xl p-8 hover:bg-white/5 transition-colors group">
+                    <div class="w-12 h-12 bg-indigo-500/10 rounded flex items-center justify-center mb-6">
+                        <svg class="w-6 h-6 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z">
+                            </path>
+                        </svg>
+                    </div>
+                    <h3 class="text-xl font-heading font-bold text-white mb-3">Auto-Report Gen</h3>
+                    <p class="text-sm text-bone/60 leading-relaxed">
+                        Export your monitoring visit notes directly into your CTMS format. Save hours of typing and
+                        copy-pasting.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- The Founder's Story / Proof -->
+    <section id="story" class="py-24 bg-ebony relative overflow-hidden border-t border-white/5">
+        <div class="absolute inset-0 opacity-10 pointer-events-none">
+            <div class="grid grid-cols-8 h-full">
+                <!-- Decorative grid lines optionally here -->
+            </div>
+        </div>
+
+        <div class="max-w-7xl mx-auto px-6 relative z-10">
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-20 items-center">
+                <div class="space-y-8">
+                    <div class="inline-block p-4 bg-emerald-600 text-ebony rounded-2xl shadow-lg">
+                        <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z">
+                            </path>
+                        </svg>
+                    </div>
+                    <h2
+                        class="text-4xl lg:text-5xl font-heading font-black italic uppercase tracking-tighter leading-tight text-bone">
+                        "Nobody was monitoring the safety of the <span
+                            class="text-emerald-400 italic underline underline-offset-8">monitor.</span>"
+                    </h2>
+                    <p class="text-bone/60 text-lg leading-relaxed">
+                        Three years ago, I was sitting in a hotel room in Omaha at 11:30 PM. I realized that while we
+                        were monitoring the safety of patients, nobody was looking out for us. CRABuddy was born from
+                        that burnout.
+                    </p>
+                    <div class="flex items-center gap-4">
+                        <div
+                            class="w-16 h-16 rounded-full bg-slate-800 border-2 border-emerald-500 overflow-hidden relative">
+                            <div
+                                class="absolute inset-0 bg-[url('https://api.dicebear.com/7.x/avataaars/svg?seed=Felix')] bg-cover">
+                            </div>
+                        </div>
+                        <div>
+                            <div class="font-heading font-black italic uppercase text-lg text-white">Molly
+                                Olufemi</div>
+                            <div class="text-emerald-400 font-bold text-xs uppercase tracking-widest italic">Senior CRA
+                                & Founder</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="reviews"
+                    class="glass-panel rounded-[3rem] p-10 border border-white/10 shadow-2xl relative overflow-hidden">
+                    <div class="space-y-8 relative z-10">
+                        <div class="flex gap-2 text-emerald-400">
+                            <!-- 5 Stars -->
+                            <svg class="w-5 h-5 fill-current" viewBox="0 0 20 20">
+                                <path
+                                    d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                            </svg>
+                            <svg class="w-5 h-5 fill-current" viewBox="0 0 20 20">
+                                <path
+                                    d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                            </svg>
+                            <svg class="w-5 h-5 fill-current" viewBox="0 0 20 20">
+                                <path
+                                    d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                            </svg>
+                            <svg class="w-5 h-5 fill-current" viewBox="0 0 20 20">
+                                <path
+                                    d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                            </svg>
+                            <svg class="w-5 h-5 fill-current" viewBox="0 0 20 20">
+                                <path
+                                    d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                            </svg>
+                        </div>
+                        <blockquote class="text-2xl font-bold italic leading-relaxed text-bone">
+                            "I finally got my Sundays back. The AI pre-flight scan is a literal lifesaver. No more 'Did
+                            I
+                            forget that?' anxiety on the flight out."
+                        </blockquote>
+                        <div class="flex items-center gap-4 border-t border-white/10 pt-8">
+                            <div class="w-12 h-12 rounded-full bg-slate-800 overflow-hidden relative">
+                                <div
+                                    class="absolute inset-0 bg-[url('https://api.dicebear.com/7.x/avataaars/svg?seed=Emma')] bg-cover">
+                                </div>
+                            </div>
+                            <div>
+                                <div class="font-heading font-black italic uppercase text-sm text-white">Emma L.</div>
+                                <div class="text-bone/50 font-bold text-[10px] uppercase tracking-[0.2em]">Freelance CRA
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer ExoCore -->
+    <footer class="border-t border-white/5 bg-ebony relative z-10 py-16">
+        <div class="max-w-7xl mx-auto px-6 grid md:grid-cols-4 gap-12 text-sm">
+            <div class="col-span-2 space-y-4">
+                <div class="flex items-center gap-2">
+                    <span class="font-heading font-bold text-xl text-bone">ExoCore</span>
+                    <span
+                        class="px-1.5 py-0.5 bg-picasso text-ebony font-mono text-[10px] font-bold tracking-tight rounded-sm">SYSTEMS</span>
+                </div>
+                <div class="inline-flex items-center gap-2 px-3 py-1 bg-white/5 border border-white/10 rounded-full">
+                    <span class="w-1.5 h-1.5 bg-emerald-500 rounded-full"></span>
+                    <span class="text-[10px] text-bone/60 font-mono uppercase tracking-wider">Built on ExoCore Privacy
+                        Protocol—Zero PHI Architecture</span>
+                </div>
+            </div>
+            <div>
+                <h4 class="font-mono text-picasso text-xs mb-4">MODULES</h4>
+                <ul class="space-y-2 text-bone/60">
+                    <li><a href="#" class="hover:text-white transition-colors">CRABuddy</a></li>
+                    <li><a href="#" class="hover:text-white transition-colors">SiteIntel</a></li>
+                    <li><a href="#" class="hover:text-white transition-colors">TravelOps</a></li>
+                </ul>
+            </div>
+            <div>
+                <h4 class="font-mono text-coral text-xs mb-4">LEGAL</h4>
+                <ul class="space-y-2 text-bone/60">
+                    <li><a href="#" class="hover:text-white transition-colors">Privacy Protocol</a></li>
+                    <li><a href="#" class="hover:text-white transition-colors">Data Sovereignty</a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="max-w-7xl mx-auto px-6 mt-16 pt-8 border-t border-white/5 flex justify-between items-center">
+            <span class="font-mono text-xs text-bone/20">PARTICLE ID: 884-291-XA</span>
+            <span class="font-mono text-xs text-bone/20">&copy; 2026 ExoCore Systems.</span>
+        </div>
+    </footer>
+
+    <!-- Lead Capture Modal (Same as before) -->
+    <div id="leadModal"
+        class="hidden fixed inset-0 z-[60] flex items-center justify-center p-4 bg-ebony/95 backdrop-blur-sm animate-fade-in">
+        <div
+            class="glass-panel border-picasso plate-lock rounded-lg shadow-[0_0_50px_rgba(208,240,192,0.15)] w-full max-w-md relative overflow-hidden">
+            <button onclick="closeModal()" class="absolute top-4 right-4 text-white/50 hover:text-white z-20">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12">
+                    </path>
+                </svg>
+            </button>
+            <div class="p-8 relative z-10">
+                <div
+                    class="w-12 h-12 bg-picasso/10 rounded border border-picasso/30 flex items-center justify-center mb-6">
+                    <svg class="w-6 h-6 text-picasso" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z">
+                        </path>
+                    </svg>
+                </div>
+                <h3 class="text-2xl font-heading font-bold text-white mb-2">Initialize CRABuddy</h3>
+                <p class="text-bone/60 text-sm mb-6">Enter your credentials to access the secure ExoCore environment.
+                </p>
+
+                <form id="leadForm" class="space-y-4">
+                    <div>
+                        <label class="block text-xs font-mono text-picasso mb-1">OPERATOR NAME</label>
+                        <input type="text" name="name" required
+                            class="w-full bg-ebony/50 border border-white/10 rounded-sm p-3 text-white focus:border-picasso focus:ring-1 focus:ring-picasso outline-none transition-all placeholder-white/20"
+                            placeholder="e.g. Sarah Connor">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-mono text-picasso mb-1">COMMS ID (EMAIL)</label>
+                        <input type="email" name="email" required
+                            class="w-full bg-ebony/50 border border-white/10 rounded-sm p-3 text-white focus:border-picasso focus:ring-1 focus:ring-picasso outline-none transition-all placeholder-white/20"
+                            placeholder="sarah@resistance.net">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-mono text-picasso mb-1">JOB POSITION</label>
+                        <select name="job_title" required
+                            class="w-full bg-ebony/50 border border-white/10 rounded-sm p-3 text-white focus:border-picasso focus:ring-1 focus:ring-picasso outline-none transition-all placeholder-white/20 appearance-none">
+                            <option value="" disabled selected class="text-white/20">Select Clearance Level</option>
+                            <option value="Senior CRA" class="bg-ebony text-white">Senior CRA</option>
+                            <option value="CRA I" class="bg-ebony text-white">CRA I</option>
+                            <option value="CRA II" class="bg-ebony text-white">CRA II</option>
+                            <option value="Lead CRA" class="bg-ebony text-white">Lead CRA</option>
+                            <option value="Clinical Trial Manager" class="bg-ebony text-white">Clinical Trial Manager
+                            </option>
+                            <option value="Project Manager" class="bg-ebony text-white">Project Manager</option>
+                            <option value="Other" class="bg-ebony text-white">Other</option>
+                        </select>
+                    </div>
+                    <button type="submit"
+                        class="w-full bg-picasso hover:bg-white text-ebony font-bold py-3.5 rounded-sm transition-all tracking-wide uppercase mt-2">
+                        Gain Access
+                    </button>
+                    <p class="text-[10px] text-center text-bone/30 font-mono mt-4">ENCRYPTED CONNECTION // NO PHI
+                        PERSISTENCE</p>
+                </form>
+            </div>
+            <!-- Background detail -->
+            <div class="absolute top-0 right-0 w-32 h-32 bg-picasso/5 rounded-full blur-2xl -z-10"></div>
+        </div>
+    </div>
+
+    <!-- AI Chat Widget (Same as before) -->
+    <div class="fixed bottom-6 right-6 z-[60] flex flex-col items-end gap-3">
+        <!-- Chat Window -->
+        <div id="chatWindow"
+            class="hidden w-80 glass-panel border border-picasso/30 rounded-lg shadow-2xl overflow-hidden mb-2 animate-slide-up origin-bottom-right">
+            <div class="bg-ebony/90 p-4 flex justify-between items-center border-b border-white/5">
+                <div class="flex items-center gap-2">
+                    <div class="w-2 h-2 bg-picasso rounded-full animate-pulse"></div>
+                    <span class="font-mono text-xs font-bold text-white tracking-wider">EXO_ASSIST_BOT</span>
+                </div>
+                <button onclick="toggleChat()" class="text-white/50 hover:text-white"><svg class="w-4 h-4" fill="none"
+                        stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                    </svg></button>
+            </div>
+            <div id="chatMessages"
+                class="h-64 p-4 overflow-y-auto space-y-3 bg-ebony/50 scrollbar-thin scrollbar-thumb-white/10">
+                <div class="flex justify-start">
+                    <div class="bg-white/5 border border-white/10 rounded text-xs p-3 max-w-[90%] text-bone/80">
+                        <p>System Online. I can assist with Encryption Specs, Pricing Tiers, or Module Capabilities.</p>
+                    </div>
+                </div>
+            </div>
+            <form id="chatForm" class="p-3 bg-ebony/80 border-t border-white/5 flex gap-2">
+                <input type="text" id="chatInput" placeholder="Input query..."
+                    class="flex-1 text-xs bg-ebony border border-white/10 rounded px-3 py-2 text-white outline-none focus:border-picasso">
+                <button type="submit" class="bg-picasso/90 hover:bg-picasso text-ebony p-2 rounded transition-colors">
+                    <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path>
+                    </svg>
+                </button>
+            </form>
+        </div>
+
+        <!-- Toggle Button -->
+        <button onclick="toggleChat()"
+            class="w-12 h-12 bg-ebony border border-picasso text-picasso hover:bg-picasso hover:text-ebony rounded-full shadow-[0_0_20px_rgba(208,240,192,0.2)] flex items-center justify-center transition-all duration-300 group">
+            <svg class="w-6 h-6 group-hover:scale-110 transition-transform" fill="none" stroke="currentColor"
+                viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z">
+                </path>
+            </svg>
+        </button>
+    </div>
+
+    <!-- Scripts (Same as before) -->
+    <script>
+        const modal = document.getElementById('leadModal');
+        const leadForm = document.getElementById('leadForm');
+        function openModal() { modal.classList.remove('hidden'); }
+        function closeModal() { modal.classList.add('hidden'); }
+
+        leadForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const fd = new FormData(e.target);
+            const btn = e.target.querySelector('button');
+            const originalText = btn.innerHTML;
+            btn.disabled = true; btn.innerHTML = 'INITIALIZING SYSTEM...';
+
+            const userData = {
+                name: fd.get('name'),
+                email: fd.get('email'),
+                job_title: fd.get('job_title'),
+                access_granted: new Date().toISOString()
+            };
+
+            try {
+                // Simulate API call and latency
+                await new Promise(resolve => setTimeout(resolve, 800));
+
+                // Store user data locally (simulating session/marketing capture)
+                localStorage.setItem('crabuddy_user', JSON.stringify(userData));
+
+                // Redirect to the System (Dashboard)
+                window.location.href = '/index.html';
+            } catch (err) {
+                console.error(err);
+                btn.disabled = false;
+                btn.innerHTML = originalText;
+                alert('Initialization Error. Please retry.');
+            }
+        });
+
+        const chatWindow = document.getElementById('chatWindow');
+        const chatForm = document.getElementById('chatForm');
+        const chatInput = document.getElementById('chatInput');
+        const chatMessages = document.getElementById('chatMessages');
+        function toggleChat() {
+            chatWindow.classList.toggle('hidden');
+            if (!chatWindow.classList.contains('hidden')) { chatInput.focus(); }
+        }
+        function appendMessage(text, isUser) {
+            const div = document.createElement('div');
+            div.className = `flex ${isUser ? 'justify-end' : 'justify-start'}`;
+            const bubble = document.createElement('div');
+            bubble.className = isUser ? 'bg-picasso text-ebony rounded rounded-tr-none p-3 max-w-[90%] text-xs font-medium' : 'bg-white/5 border border-white/10 rounded rounded-tl-none p-3 max-w-[90%] text-xs text-bone/80';
+            bubble.textContent = text;
+            div.appendChild(bubble);
+            chatMessages.appendChild(div);
+            chatMessages.scrollTo({ top: chatMessages.scrollHeight, behavior: 'smooth' });
+        }
+        chatForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const msg = chatInput.value.trim();
+            if (!msg) return;
+            appendMessage(msg, true);
+            chatInput.value = '';
+            const loadingId = 'loading-' + Date.now();
+            const loadingDiv = document.createElement('div');
+            loadingDiv.className = 'flex justify-start';
+            loadingDiv.innerHTML = `<div id="${loadingId}" class="bg-white/5 border border-white/10 rounded p-2 flex gap-1"><span class="w-1 h-1 bg-picasso rounded-full animate-bounce"></span><span class="w-1 h-1 bg-picasso rounded-full animate-bounce delay-75"></span><span class="w-1 h-1 bg-picasso rounded-full animate-bounce delay-150"></span></div>`;
+            chatMessages.appendChild(loadingDiv);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+            try {
+                const res = await fetch('/api/chat', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ message: msg })
+                });
+                loadingDiv.remove();
+                const data = await res.json();
+                if (data.reply) { appendMessage(data.reply, false); } else { appendMessage("Connection Lost.", false); }
+            } catch (err) { loadingDiv.remove(); appendMessage("Signal Error.", false); }
+        });
+    </script>
+    <style>
+        /* Chaos Animation State */
+        .orbit-container.chaos-mode .orbit-wrapper-2,
+        .orbit-container.chaos-mode .orbit-wrapper-1,
+        .orbit-container.chaos-mode .orbit-wrapper-3 {
+            transition: all 1.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        /* Scatter the Chaos Ring */
+        .orbit-container.chaos-mode .orbit-wrapper-2 {
+            width: 700px;
+            height: 700px;
+            animation-duration: 5s;
+            opacity: 0.6;
+        }
+
+        .orbit-container.chaos-mode .orbit-wrapper-2 .planet-icon {
+            transform: scale(1.3) rotate(45deg);
+        }
+
+        /* Scatter the Inner Ring slightly */
+        .orbit-container.chaos-mode .orbit-wrapper-1 {
+            width: 350px;
+            height: 350px;
+            animation-duration: 8s;
+        }
+
+        /* Scatter the Outer Ring */
+        .orbit-container.chaos-mode .orbit-wrapper-3 {
+            width: 800px;
+            height: 800px;
+            opacity: 0;
+        }
+
+        /* Enhance transitions for smooth return */
+        .orbit-wrapper-1,
+        .orbit-wrapper-2,
+        .orbit-wrapper-3 {
+            transition: all 1.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        .planet-icon {
+            transition: transform 1.5s ease-out;
+        }
+    </style>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const orbitContainer = document.querySelector('.perspective-1000');
+            // Add the container class for targeting
+            orbitContainer.classList.add('orbit-container');
+            // Start in Chaos Mode
+            orbitContainer.classList.add('chaos-mode');
+
+            // Scroll Listener
+            window.addEventListener('scroll', () => {
+                const scrollY = window.scrollY;
+                // As user scrolls down (> 50px), remove chaos (bring order)
+                if (scrollY > 50) {
+                    orbitContainer.classList.remove('chaos-mode');
+                } else {
+                    orbitContainer.classList.add('chaos-mode');
+                }
+            });
+        });
+    </script>
+</body>
+
+</html>

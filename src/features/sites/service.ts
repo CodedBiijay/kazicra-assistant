@@ -25,8 +25,8 @@ export class SiteService {
     async addSite(site: Omit<Site, 'id'>): Promise<Site> {
         const newSite: Site = { ...site, id: randomUUID() };
         await db.run(
-            `INSERT INTO sites (id, siteId, name, location, notes) VALUES (?, ?, ?, ?, ?)`,
-            [newSite.id, newSite.siteId, newSite.name, newSite.location, newSite.notes]
+            `INSERT INTO sites (id, siteId, name, location, notes, hotel_best, restaurant_best, parking_spot, door_code, primary_contact_name) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+            [newSite.id, newSite.siteId, newSite.name, newSite.location, newSite.notes, newSite.hotel_best || null, newSite.restaurant_best || null, newSite.parking_spot || null, newSite.door_code || null, newSite.primary_contact_name || null]
         );
         return newSite;
     }
@@ -36,8 +36,21 @@ export class SiteService {
         return rows as Site[];
     }
 
-    async updateSiteNotes(id: string, notes: string): Promise<void> {
-        await db.run(`UPDATE sites SET notes = ? WHERE id = ?`, [notes, id]);
+    async updateSiteLogistics(id: string, logistics: Partial<Site>): Promise<void> {
+        const fields: string[] = [];
+        const values: any[] = [];
+
+        if (logistics.hotel_best !== undefined) { fields.push('hotel_best = ?'); values.push(logistics.hotel_best); }
+        if (logistics.restaurant_best !== undefined) { fields.push('restaurant_best = ?'); values.push(logistics.restaurant_best); }
+        if (logistics.parking_spot !== undefined) { fields.push('parking_spot = ?'); values.push(logistics.parking_spot); }
+        if (logistics.door_code !== undefined) { fields.push('door_code = ?'); values.push(logistics.door_code); }
+        if (logistics.primary_contact_name !== undefined) { fields.push('primary_contact_name = ?'); values.push(logistics.primary_contact_name); }
+        if (logistics.notes !== undefined) { fields.push('notes = ?'); values.push(logistics.notes); }
+
+        if (fields.length === 0) return Promise.resolve();
+        values.push(id);
+
+        await db.run(`UPDATE sites SET ${fields.join(', ')} WHERE id = ?`, values);
     }
 
     // --- Projects ---

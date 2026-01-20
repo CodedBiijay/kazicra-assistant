@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CRABuddy | Orbit Concept</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Montserrat:wght@500;600;700;800&family=Space+Grotesk:wght@500;700&display=swap"
+        rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        ebony: '#0F0F11', /* Darker, deeper black for contrast */
+                        void: '#050505',
+                        bone: '#F9F6EE',
+                        picasso: '#D0F0C0', /* Tea Green - calmness */
+                        coral: '#FF4D4D', /* Alert/Chaos color */
+                        iris: '#5D5FEF', /* Deep purple from the reference image */
+                        rose: '#F092AD', /* Soft pink accent */
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        heading: ['Montserrat', 'sans-serif'],
+                        display: ['Space Grotesk', 'sans-serif'],
+                    },
+                    animation: {
+                        'orbit-cw': 'orbit-cw 20s linear infinite',
+                        'orbit-ccw': 'orbit-ccw 25s linear infinite',
+                        'orbit-inner': 'orbit-cw 15s linear infinite',
+                        'float': 'float 6s ease-in-out infinite',
+                        'pulse-glow': 'pulse-glow 3s ease-in-out infinite',
+                    },
+                    keyframes: {
+                        'orbit-cw': {
+                            '0%': { transform: 'rotate(0deg)' },
+                            '100%': { transform: 'rotate(360deg)' },
+                        },
+                        'orbit-ccw': {
+                            '0%': { transform: 'rotate(360deg)' },
+                            '100%': { transform: 'rotate(0deg)' },
+                        },
+                        'float': {
+                            '0%, 100%': { transform: 'translateY(0)' },
+                            '50%': { transform: 'translateY(-10px)' },
+                        },
+                        'pulse-glow': {
+                            '0%, 100%': { opacity: '0.6', transform: 'scale(1)' },
+                            '50%': { opacity: '1', transform: 'scale(1.05)' },
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            background-color: #050505;
+            color: #F9F6EE;
+            overflow-x: hidden;
+        }
+
+        /* Glassmorphism specifically for the Orbit cards */
+        .glass-orb {
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+        }
+
+        .glass-orb:hover {
+            background: rgba(255, 255, 255, 0.08);
+            border-color: rgba(208, 240, 192, 0.3);
+            box-shadow: 0 0 20px rgba(208, 240, 192, 0.1);
+            transform: scale(1.05);
+        }
+
+        .orbit-container {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+
+        .ring-line {
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 50%;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+
+        /* Counter-rotate children to keep them upright while orbiting */
+        .orbiter {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            /* Offset handled in inline styles or specific classes */
+        }
+
+        .orbit-wrapper-1 {
+            animation: orbit-cw 40s linear infinite;
+            width: 100%;
+            height: 100%;
+            position: absolute;
+        }
+
+        .orbit-wrapper-2 {
+            animation: orbit-ccw 50s linear infinite;
+            width: 100%;
+            height: 100%;
+            position: absolute;
+        }
+
+        .orbit-wrapper-3 {
+            animation: orbit-cw 30s linear infinite;
+            width: 100%;
+            height: 100%;
+            position: absolute;
+        }
+
+        .planet-icon {
+            animation: orbit-ccw 40s linear infinite;
+            /* Counter rotate to maintain orientation */
+        }
+
+        .orbit-wrapper-2 .planet-icon {
+            animation: orbit-cw 50s linear infinite;
+        }
+
+        .orbit-wrapper-3 .planet-icon {
+            animation: orbit-ccw 30s linear infinite;
+        }
+
+        .gradient-bg {
+            background: radial-gradient(circle at 60% 50%, rgba(93, 95, 239, 0.15) 0%, rgba(5, 5, 5, 0) 60%),
+                radial-gradient(circle at 20% 80%, rgba(208, 240, 192, 0.05) 0%, rgba(5, 5, 5, 0) 50%);
+        }
+    </style>
+</head>
+
+<body class="antialiased font-sans flex flex-col min-h-screen">
+
+    <!-- Navigation -->
+    <nav class="fixed w-full z-50 pt-6 px-6">
+        <div class="max-w-7xl mx-auto flex justify-between items-center">
+            <div class="flex items-center gap-2">
+                <div class="w-8 h-8 rounded bg-picasso/10 flex items-center justify-center border border-picasso/20">
+                    <svg class="w-4 h-4 text-picasso" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10">
+                        </path>
+                    </svg>
+                </div>
+                <span class="text-xl font-heading font-bold text-bone">CRA<span class="text-picasso">Buddy</span></span>
+            </div>
+
+            <div class="hidden md:flex items-center gap-8">
+                <a href="#" class="text-sm font-medium text-bone/60 hover:text-white transition-colors">FEATURES</a>
+                <a href="#" class="text-sm font-medium text-bone/60 hover:text-white transition-colors">MANIFESTO</a>
+                <a href="#" class="text-sm font-medium text-bone/60 hover:text-white transition-colors">PRICING</a>
+                <a href="/"
+                    class="px-5 py-2 rounded-full border border-white/10 hover:bg-white/5 text-sm font-bold transition-all">LOGIN</a>
+                <button
+                    class="px-5 py-2 rounded-full bg-picasso text-ebony font-bold text-sm hover:shadow-[0_0_15px_rgba(208,240,192,0.4)] transition-all">JOIN
+                    WAITLIST</button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Stage -->
+    <main class="flex-grow relative gradient-bg overflow-hidden flex items-center">
+
+        <div
+            class="max-w-7xl mx-auto px-6 w-full grid grid-cols-1 lg:grid-cols-2 gap-12 items-center relative z-10 py-20">
+
+            <!-- Left: Copy -->
+            <div class="space-y-8 relative z-20">
+                <div
+                    class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/5 border border-white/10 backdrop-blur-sm">
+                    <span class="w-2 h-2 rounded-full bg-picasso animate-pulse"></span>
+                    <span class="text-[10px] font-mono tracking-widest uppercase text-picasso">System Online v2.0</span>
+                </div>
+
+                <h1 class="text-5xl lg:text-7xl font-heading font-black tracking-tight leading-[1.1]">
+                    <span class="block text-transparent bg-clip-text bg-gradient-to-br from-white to-white/50">Stop
+                        Chasing</span>
+                    <span
+                        class="block text-transparent bg-clip-text bg-gradient-to-r from-picasso via-emerald-300 to-iris animate-pulse-glow">The
+                        Chaos.</span>
+                </h1>
+
+                <p class="text-lg text-bone/60 leading-relaxed max-w-md font-light">
+                    The average CRA manages 14 trackers, 500+ emails, and 3 disparate portals. <br><br>
+                    <span class="text-white font-medium">CRABuddy brings them into one orbit.</span>
+                    Automate your site prep, gap analysis, and report generation in a single command center.
+                </p>
+
+                <div class="flex gap-4 pt-4">
+                    <button
+                        class="px-8 py-4 rounded-full bg-picasso hover:bg-white text-ebony font-heading font-bold tracking-wide transition-all shadow-[0_0_30px_rgba(208,240,192,0.2)]">
+                        INITIALIZE SYSTEM
+                    </button>
+                    <button
+                        class="px-8 py-4 rounded-full border border-white/10 hover:bg-white/5 text-white font-heading font-bold tracking-wide flex items-center gap-2 group">
+                        <span>WATCH DEMO</span>
+                        <svg class="w-4 h-4 group-hover:translate-x-1 transition-transform" fill="none"
+                            stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z">
+                            </path>
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                        </svg>
+                    </button>
+                </div>
+
+                <div class="pt-12 flex items-center gap-8 opacity-40">
+                    <!-- Brand logos (minimalist) -->
+                    <span class="font-heading font-bold text-sm tracking-widest">IQVIA</span>
+                    <span class="font-heading font-bold text-sm tracking-widest">PPD</span>
+                    <span class="font-heading font-bold text-sm tracking-widest">LABCORP</span>
+                </div>
+            </div>
+
+            <!-- Right: The Orbit Visualization -->
+            <div class="relative h-[600px] w-full flex items-center justify-center perspective-1000">
+
+                <!-- Central Core: Calm -->
+                <div
+                    class="w-32 h-32 rounded-full glass-orb flex items-center justify-center relative z-20 shadow-[0_0_60px_rgba(208,240,192,0.2)] animate-float">
+                    <div class="absolute inset-0 bg-picasso/20 blur-xl rounded-full"></div>
+                    <svg class="w-16 h-16 text-picasso relative z-10" fill="none" stroke="currentColor"
+                        viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                            d="M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m18-6h-2m2 6h-2M7 19h10a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v10a2 2 0 002 2zM9 9h6v6H9V9z">
+                        </path>
+                    </svg>
+                </div>
+
+                <!-- Ring 1: Immediate Tools (Checklists, Reports) -->
+                <div class="ring-line w-[280px] h-[280px] opacity-40"></div>
+                <div class="orbit-wrapper-1 w-[280px] h-[280px]">
+                    <!-- Item 1 -->
+                    <div class="block absolute top-0 left-1/2 -ml-6 -mt-6">
+                        <div
+                            class="w-12 h-12 rounded-xl glass-orb flex items-center justify-center planet-icon cursor-pointer group">
+                            <span
+                                class="absolute -top-8 opacity-0 group-hover:opacity-100 transition-opacity text-[10px] font-mono text-picasso whitespace-nowrap bg-ebony px-2 py-1 border border-picasso/20 rounded">AUTO-REPORT</span>
+                            <svg class="w-5 h-5 text-picasso" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z">
+                                </path>
+                            </svg>
+                        </div>
+                    </div>
+                    <!-- Item 2 -->
+                    <div class="block absolute bottom-0 left-1/2 -ml-6 -mb-6">
+                        <div
+                            class="w-12 h-12 rounded-xl glass-orb flex items-center justify-center planet-icon cursor-pointer group">
+                            <span
+                                class="absolute -bottom-8 opacity-0 group-hover:opacity-100 transition-opacity text-[10px] font-mono text-picasso whitespace-nowrap bg-ebony px-2 py-1 border border-picasso/20 rounded">CHECKLISTS</span>
+                            <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4">
+                                </path>
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Ring 2: The Chaos (Emails, Excel, Red Alerts) -->
+                <div class="ring-line w-[450px] h-[450px] opacity-20"></div>
+                <div class="orbit-wrapper-2 w-[450px] h-[450px]">
+                    <!-- Chaos Item 1: Excel -->
+                    <div class="block absolute top-1/4 left-0 -ml-5">
+                        <div
+                            class="w-14 h-14 rounded-2xl glass-orb border-rosy-500/30 flex items-center justify-center planet-icon backdrop-blur-md">
+                            <div
+                                class="absolute -right-2 -top-2 w-4 h-4 bg-coral rounded-full flex items-center justify-center text-[10px] font-bold">
+                                3</div>
+                            <svg class="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z">
+                                </path>
+                            </svg>
+                        </div>
+                    </div>
+                    <!-- Chaos Item 2: Email -->
+                    <div class="block absolute bottom-1/4 right-0 -mr-5">
+                        <div class="w-16 h-16 rounded-2xl glass-orb flex items-center justify-center planet-icon">
+                            <div
+                                class="absolute -right-1 -top-1 w-5 h-5 bg-coral rounded-full flex items-center justify-center text-[10px] font-bold">
+                                52</div>
+                            <svg class="w-7 h-7 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z">
+                                </path>
+                            </svg>
+                        </div>
+                    </div>
+                    <!-- Chaos Item 3: Alert -->
+                    <div class="block absolute top-0 left-1/2 -mt-6">
+                        <div
+                            class="w-10 h-10 rounded-lg glass-orb border-coral/50 flex items-center justify-center planet-icon">
+                            <svg class="w-5 h-5 text-coral" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z">
+                                </path>
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Ring 3: Distant Systems (Flight, Calendar) -->
+                <div class="ring-line w-[600px] h-[600px] opacity-10 dashed"></div>
+                <div class="orbit-wrapper-3 w-[600px] h-[600px]">
+                    <div class="block absolute bottom-1/3 left-0">
+                        <div
+                            class="w-10 h-10 rounded-full glass-orb flex items-center justify-center planet-icon opacity-60">
+                            <svg class="w-4 h-4 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path>
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- Background Elements -->
+        <div
+            class="absolute top-0 right-0 w-[50rem] h-[50rem] bg-iris/10 rounded-full blur-[150px] -z-10 animate-pulse-glow">
+        </div>
+        <div class="absolute bottom-0 left-0 w-[40rem] h-[40rem] bg-picasso/5 rounded-full blur-[120px] -z-10"></div>
+
+    </main>
+
+</body>
+
+</html>

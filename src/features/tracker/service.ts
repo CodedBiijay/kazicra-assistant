@@ -1,67 +1,93 @@
-import type { MetricLog, AchievementLog, SiteLog, YearStats } from './model.ts';
-import { PerformanceMetric } from './model.ts';
+import { PrivacySentry } from '../../utils/privacySentry.ts';
 import db from '../../config/db.ts';
 import { randomUUID } from 'node:crypto';
 
+export interface SiteAchievement {
+    id: string;
+    date: Date;
+    project_id: string;
+    category: string;
+    title: string;
+    impact_description: string;
+    is_review_ready: boolean;
+}
+
+export interface TimesheetEntry {
+    id: string;
+    date: Date;
+    project_id: string;
+    activity_type: string;
+    hours_spent: number;
+    achievement_link_id?: string;
+    notes?: string;
+}
+
 export class TrackerService {
 
-    constructor() { }
+    async logWin(entry: Omit<SiteAchievement, 'id' | 'is_review_ready' | 'impact_description'> & { impact: string }): Promise<SiteAchievement> {
+        // Run Privacy Sentry Checks
+        const sanitizedTitle = PrivacySentry.sanitize(entry.title);
+        const sanitizedImpact = PrivacySentry.sanitize(entry.impact);
 
-    async logMetric(entry: Omit<MetricLog, 'id'>): Promise<MetricLog> {
-        const newEntry: MetricLog = { ...entry, id: randomUUID() };
-        await db.run(
-            `INSERT INTO metric_logs (id, date, descriptor, count, projectId) VALUES (?, ?, ?, ?, ?)`,
-            [newEntry.id, newEntry.date.toISOString(), newEntry.descriptor, newEntry.count, newEntry.projectId]
-        );
-        return newEntry;
-    }
+        if (sanitizedTitle.triggered || sanitizedImpact.triggered) {
+            console.warn(`[PrivacySentry] Sanitized PII in win log: ${entry.project_id}`);
+        }
 
-    async logAchievement(entry: Omit<AchievementLog, 'id'>): Promise<AchievementLog> {
-        const newEntry: AchievementLog = { ...entry, id: randomUUID() };
-        await db.run(
-            `INSERT INTO achievement_logs (id, date, title, impact, projectId) VALUES (?, ?, ?, ?, ?)`,
-            [newEntry.id, newEntry.date.toISOString(), newEntry.title, newEntry.impact, newEntry.projectId]
-        );
-        return newEntry;
-    }
-
-    async logSiteVisit(entry: Omit<SiteLog, 'id'>): Promise<SiteLog> {
-        const newEntry: SiteLog = { ...entry, id: randomUUID() };
-        await db.run(
-            `INSERT INTO site_logs (id, date, siteId, actionType, notes) VALUES (?, ?, ?, ?, ?)`,
-            [newEntry.id, newEntry.date.toISOString(), newEntry.siteId, newEntry.actionType, newEntry.notes]
-        );
-        return newEntry;
-    }
-
-    async getMetricLogs(): Promise<MetricLog[]> {
-        const rows = await db.query(`SELECT * FROM metric_logs ORDER BY date DESC`);
-        return rows.map(row => ({ ...row, date: new Date(row.date) }));
-    }
-
-    async getAchievementLogs(): Promise<AchievementLog[]> {
-        const rows = await db.query(`SELECT * FROM achievement_logs ORDER BY date DESC`);
-        return rows.map(row => ({ ...row, date: new Date(row.date) }));
-    }
-
-    async getSiteLogs(): Promise<SiteLog[]> {
-        const rows = await db.query(`SELECT * FROM site_logs ORDER BY date DESC`);
-        return rows.map(row => ({ ...row, date: new Date(row.date) }));
-    }
-
-    // Retained for backward compatibility or stats migration if needed
-    async getStatsByYear(year: number): Promise<YearStats> {
-        // Placeholder: Returning zero stats for now as logic requires updates for new schema
-        return {
-            year,
-            totalEntries: 0,
-            byMetric: {
-                [PerformanceMetric.QUERY_RESOLUTION]: 0,
-                [PerformanceMetric.SITE_TRAINING]: 0,
-                [PerformanceMetric.VISIT_COMPLETE]: 0,
-                [PerformanceMetric.PROACTIVE_SOLVING]: 0,
-                [PerformanceMetric.OTHER]: 0
-            }
+        const newEntry: SiteAchievement = {
+            id: randomUUID(),
+            date: entry.date,
+            project_id: entry.project_id,
+            category: entry.category,
+            title: sanitizedTitle.clean,
+            impact_description: sanitizedImpact.clean,
+            is_review_ready: false
         };
+
+        await db.run(
+            `INSERT INTO site_achievements (id, date, project_id, category, title, impact_description, is_review_ready) VALUES (?, ?, ?, ?, ?, ?, ?)`,
+            [newEntry.id, newEntry.date.toISOString(), newEntry.project_id, newEntry.category, newEntry.title, newEntry.impact_description, newEntry.is_review_ready ? 1 : 0]
+        );
+        return newEntry;
+    }
+
+    async getWins(): Promise<SiteAchievement[]> {
+        const rows = await db.query(`SELECT * FROM site_achievements ORDER BY date DESC`);
+        return rows.map(row => ({
+            ...row,
+            date: new Date(row.date),
+            is_review_ready: !!row.is_review_ready
+        }));
+    }
+
+    async logTimesheet(entry: Omit<TimesheetEntry, 'id'>): Promise<TimesheetEntry> {
+        // Run Privacy Sentry Checks
+        let sanitizedNotes = entry.notes;
+        if (entry.notes) {
+            const check = PrivacySentry.sanitize(entry.notes);
+            if (check.triggered) {
+                console.warn(`[PrivacySentry] Sanitized PII in timesheet: ${entry.project_id}`);
+                sanitizedNotes = check.clean;
+            }
+        }
+
+        const newEntry: TimesheetEntry = {
+            id: randomUUID(),
+            ...entry,
+            notes: sanitizedNotes
+        };
+
+        await db.run(
+            `INSERT INTO timesheet_entries (id, date, project_id, activity_type, hours_spent, achievement_link_id, notes) VALUES (?, ?, ?, ?, ?, ?, ?)`,
+            [newEntry.id, newEntry.date.toISOString(), newEntry.project_id, newEntry.activity_type, newEntry.hours_spent, newEntry.achievement_link_id || null, newEntry.notes || null]
+        );
+        return newEntry;
+    }
+
+    async getTimesheets(): Promise<TimesheetEntry[]> {
+        const rows = await db.query(`SELECT * FROM timesheet_entries ORDER BY date DESC`);
+        return rows.map(row => ({
+            ...row,
+            date: new Date(row.date)
+        }));
     }
 }

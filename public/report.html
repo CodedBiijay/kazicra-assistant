@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>CRABuddy | Dossier Export</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        kazi: {
+                            50: '#f0f9ff',
+                            100: '#e0f2fe',
+                            500: '#0ea5e9',
+                            600: '#0284c7',
+                            900: '#0c4a6e',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        .markdown-preview h1 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            color: #1e293b;
+        }
+
+        .markdown-preview h2 {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-top: 1.5rem;
+            margin-bottom: 0.75rem;
+            color: #334155;
+            border-bottom: 1px solid #e2e8f0;
+            padding-bottom: 0.25rem;
+        }
+
+        .markdown-preview h3 {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-top: 1rem;
+            margin-bottom: 0.5rem;
+            color: #475569;
+        }
+
+        .markdown-preview ul,
+        .markdown-preview ol {
+            padding-left: 1.5rem;
+            list-style-type: disc;
+            margin-bottom: 1rem;
+        }
+
+        .markdown-preview p {
+            margin-bottom: 1rem;
+            line-height: 1.6;
+            color: #475569;
+        }
+
+        .markdown-preview strong {
+            font-weight: 600;
+            color: #1e293b;
+        }
+
+        .markdown-preview blockquote {
+            border-left: 4px solid #cbd5e1;
+            padding-left: 1rem;
+            color: #64748b;
+            font-style: italic;
+            background-color: #f8fafc;
+            padding: 0.5rem 1rem;
+            border-radius: 0.25rem;
+        }
+
+        .markdown-preview table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 1rem;
+        }
+
+        .markdown-preview th,
+        .markdown-preview td {
+            border: 1px solid #e2e8f0;
+            padding: 0.5rem;
+            text-align: left;
+            font-size: 0.875rem;
+        }
+
+        .markdown-preview th {
+            background-color: #f1f5f9;
+            font-weight: 600;
+        }
+
+        @media print {
+            .no-print {
+                display: none !important;
+            }
+
+            body {
+                background: white;
+            }
+
+            .markdown-preview {
+                padding: 0;
+                box-shadow: none;
+                border: none;
+            }
+        }
+    </style>
+</head>
+
+<body class="bg-gray-50 text-slate-900 pb-20">
+
+    <!-- Header -->
+    <header class="bg-white border-b border-slate-200 sticky top-0 z-50 no-print">
+        <div class="max-w-4xl mx-auto px-4 py-3 flex justify-between items-center">
+            <div class="flex items-center gap-3">
+                <a href="/" class="text-slate-400 hover:text-slate-600">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+                    </svg>
+                </a>
+                <h1 class="text-xl font-bold text-slate-900">Reports</h1>
+            </div>
+
+        </div>
+    </header>
+
+    <main class="max-w-4xl mx-auto p-4 space-y-6">
+
+        <!-- Filter Controls -->
+        <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200 no-print">
+            <h2 class="text-sm font-bold text-slate-500 uppercase tracking-wide mb-4">Generate Dossier</h2>
+
+            <form id="reportForm" class="flex flex-col sm:flex-row gap-4 items-end">
+                <div class="w-full sm:w-1/3">
+                    <label class="block text-xs font-bold text-slate-500 mb-1">Start Date</label>
+                    <input type="date" name="startDate" id="startDate"
+                        class="w-full border-slate-300 rounded-lg text-sm focus:ring-kazi-500">
+                </div>
+                <div class="w-full sm:w-1/3">
+                    <label class="block text-xs font-bold text-slate-500 mb-1">End Date</label>
+                    <input type="date" name="endDate" id="endDate"
+                        class="w-full border-slate-300 rounded-lg text-sm focus:ring-kazi-500">
+                </div>
+                <button type="submit"
+                    class="w-full sm:w-auto bg-slate-900 text-white px-6 py-2.5 rounded-lg text-sm font-medium hover:bg-black transition-colors shadow-sm">
+                    Generate Report
+                </button>
+            </form>
+        </div>
+
+        <!-- Preview Area -->
+        <div id="previewContainer" class="hidden">
+            <div class="flex justify-between items-center mb-4 no-print">
+                <h2 class="text-sm font-bold text-slate-500 uppercase tracking-wide">Preview</h2>
+                <div class="space-x-2">
+                    <button onclick="window.print()"
+                        class="bg-indigo-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-indigo-700 shadow-sm flex items-center gap-2">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z">
+                            </path>
+                        </svg>
+                        Print PDF
+                    </button>
+                </div>
+            </div>
+
+            <div id="reportContent"
+                class="bg-white p-12 rounded-xl border border-slate-200 shadow-lg min-h-[600px] markdown-preview">
+                <!-- Markdown Content -->
+            </div>
+        </div>
+
+    </main>
+
+    <script>
+        // Set default dates (Try current year)
+        const now = new Date();
+        const startOfYear = new Date(now.getFullYear(), 0, 1);
+        const endOfYear = new Date(now.getFullYear(), 11, 31);
+
+        document.getElementById('startDate').valueAsDate = startOfYear;
+        document.getElementById('endDate').valueAsDate = endOfYear;
+
+        document.getElementById('reportForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const btn = e.target.querySelector('button');
+            const originalText = btn.textContent;
+            btn.textContent = 'Generating...';
+            btn.disabled = true;
+
+            const startDate = document.getElementById('startDate').value;
+            const endDate = document.getElementById('endDate').value;
+
+            try {
+                const res = await fetch('/api/reports/generate', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ startDate, endDate })
+                });
+
+                if (res.ok) {
+                    const data = await res.json();
+                    document.getElementById('reportContent').innerHTML = marked.parse(data.markdown);
+                    document.getElementById('previewContainer').classList.remove('hidden');
+                } else {
+                    alert("Failed to generate report");
+                }
+            } catch (err) {
+                console.error(err);
+                alert("Error generating report");
+            } finally {
+                btn.textContent = originalText;
+                btn.disabled = false;
+            }
+        });
+    </script>
+</body>
+
+</html>
