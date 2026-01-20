@@ -316,7 +316,8 @@ app.post('/api/chat', async (req, res) => {
 
 // --- HTML Routes ---
 const PUBLIC_DIR = path.join(process.cwd(), 'public');
-app.get('/', (req, res) => res.sendFile(path.join(PUBLIC_DIR, 'index.html')));
+app.get('/', (req, res) => res.sendFile(path.join(PUBLIC_DIR, 'landing.html')));
+app.get('/app', (req, res) => res.sendFile(path.join(PUBLIC_DIR, 'index.html')));
 app.get('/visit-mode', (req, res) => res.sendFile(path.join(PUBLIC_DIR, 'visit_mode.html')));
 app.get('/report', (req, res) => res.sendFile(path.join(PUBLIC_DIR, 'report.html')));
 
@@ -331,7 +332,7 @@ app.get('*', (req, res) => {
     } else if (pathname === '/visits.html') {
         res.sendFile(path.join(process.cwd(), 'public', 'visits.html'));
     } else {
-        res.sendFile(path.join(process.cwd(), 'public', 'index.html'));
+        res.sendFile(path.join(process.cwd(), 'public', 'landing.html'));
     }
 });
 

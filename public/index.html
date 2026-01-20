@@ -31,6 +31,13 @@
             }
         }
     </script>
+    <script>
+        // Enforce Access Control
+        const user = localStorage.getItem('crabuddy_user');
+        if (!user) {
+            window.location.href = '/';
+        }
+    </script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
         body {
@@ -47,7 +54,7 @@
         <div class="h-full flex flex-col justify-between py-4">
             <!-- Logo -->
             <!-- Logo -->
-            <a href="/" onclick="if(window.innerWidth < 640) toggleSidebar()"
+            <a href="/app" onclick="if(window.innerWidth < 640) toggleSidebar()"
                 class="block px-6 mb-8 hover:opacity-80 transition-opacity">
                 <div class="flex items-center gap-2">
                     <div
