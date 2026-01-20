@@ -335,7 +335,13 @@ app.get('*', (req, res) => {
     }
 });
 
-app.listen(Number(PORT), '0.0.0.0', () => {
-    console.log(`CRABuddy Server (Express) running at http://0.0.0.0:${PORT}`);
-    console.log(`Runtime: Node ${process.version}`);
-});
+// Export for Vercel Serverless
+export default app;
+
+// Only start server if run directly (Development or Cloud Run)
+if (process.env.NODE_ENV !== 'production' || !process.env.VERCEL) {
+    app.listen(Number(PORT), '0.0.0.0', () => {
+        console.log(`CRABuddy Server (Express) running at http://0.0.0.0:${PORT}`);
+        console.log(`Runtime: Node ${process.version}`);
+    });
+}
