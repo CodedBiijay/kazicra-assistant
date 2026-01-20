@@ -1,4 +1,4 @@
-import db from '../../config/db.ts';
+import db from '../../config/db.js';
 import { randomUUID } from 'crypto';
 import { GoogleGenerativeAI } from '@google/generative-ai';
 import dotenv from 'dotenv';

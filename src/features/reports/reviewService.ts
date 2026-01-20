@@ -1,6 +1,6 @@
 import { GoogleGenerativeAI } from '@google/generative-ai';
 import dotenv from 'dotenv';
-import { visitService } from '../visits/service.ts';
+import { visitService } from '../visits/service.js';
 
 dotenv.config();
 

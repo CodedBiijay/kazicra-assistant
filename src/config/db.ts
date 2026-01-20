@@ -1,5 +1,5 @@
-import { SQLiteAdapter, PostgresAdapter } from './adapter.ts';
-import type { IDatabase } from './adapter.ts';
+import { SQLiteAdapter, PostgresAdapter } from './adapter.js';
+import type { IDatabase } from './adapter.js';
 
 const dbType = process.env.DB_TYPE || 'sqlite';
 let db: IDatabase;

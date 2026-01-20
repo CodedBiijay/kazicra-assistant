@@ -1,7 +1,7 @@
 import express from 'express';
 import path from 'node:path';
-import { TrackerService } from './features/tracker/service.ts';
-import { SiteService } from './features/sites/service.ts';
+import { TrackerService } from './features/tracker/service.js';
+import { SiteService } from './features/sites/service.js';
 import { z } from 'zod';
 import multer from 'multer';
 import fs from 'node:fs';
@@ -145,7 +145,7 @@ app.post('/api/sites', async (req, res) => {
 });
 
 // Calculator API
-import { CalculatorService } from './features/tools/calculatorService.ts';
+import { CalculatorService } from './features/tools/calculatorService.js';
 const calculatorService = new CalculatorService();
 
 app.get('/api/tools/my-tools', async (req, res) => {
@@ -163,7 +163,7 @@ app.post('/api/tools/search', async (req, res) => {
 });
 
 // --- Visits API ---
-import { visitService } from './features/visits/service.ts';
+import { visitService } from './features/visits/service.js';
 
 app.post('/api/visits', async (req, res) => {
     const { siteId, type, date, mode } = req.body;
@@ -260,8 +260,8 @@ app.post('/api/upload', upload.single('file'), (req, res) => {
 
 
 // --- Reporting API ---
-import { reportingService } from './features/reports/service.ts';
-import { reviewArchitectService } from './features/reports/reviewService.ts';
+import { reportingService } from './features/reports/service.js';
+import { reviewArchitectService } from './features/reports/reviewService.js';
 
 app.post('/api/reports/generate', async (req, res) => {
     const { startDate, endDate } = req.body;
@@ -288,7 +288,7 @@ app.post('/api/reviews/analyze', async (req, res) => {
 });
 
 // --- Marketing API ---
-import { marketingService } from './features/marketing/service.ts';
+import { marketingService } from './features/marketing/service.js';
 
 app.post('/api/leads', async (req, res) => {
     const { name, email } = req.body;

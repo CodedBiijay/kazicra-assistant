@@ -1,5 +1,5 @@
-import type { Site } from './model.ts';
-import db from '../../config/db.ts';
+import type { Site } from './model.js';
+import db from '../../config/db.js';
 import { randomUUID } from 'node:crypto';
 
 export interface TimesheetEntry {

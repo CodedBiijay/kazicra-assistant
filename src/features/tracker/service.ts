@@ -1,5 +1,5 @@
-import { PrivacySentry } from '../../utils/privacySentry.ts';
-import db from '../../config/db.ts';
+import { PrivacySentry } from '../../utils/privacySentry.js';
+import db from '../../config/db.js';
 import { randomUUID } from 'node:crypto';
 
 export interface SiteAchievement {
